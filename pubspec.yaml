@@ -1,0 +1,28 @@
+name: dart_monty_plugins
+description: Optional plugins for dart_monty — HTTP, logging, storage, and scheduling.
+version: 0.1.0
+publish_to: none
+homepage: https://github.com/runyaga/dart_monty_plugins
+repository: https://github.com/runyaga/dart_monty_plugins
+issue_tracker: https://github.com/runyaga/dart_monty_plugins/issues
+topics:
+  - python
+  - dart
+  - plugin
+  - sandbox
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  collection: ^1.18.0
+  dart_monty:
+    path: ../dart_monty/main
+  http: ^1.1.0
+  meta: ^1.11.0
+  signals_core: ^6.2.0
+  struct_log: ^0.3.0
+
+dev_dependencies:
+  test: ^1.25.0
+  very_good_analysis: ^10.0.0

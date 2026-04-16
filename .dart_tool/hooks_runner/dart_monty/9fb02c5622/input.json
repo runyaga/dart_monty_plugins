@@ -1,0 +1,24 @@
+{
+  "assets": {},
+  "config": {
+    "build_asset_types": [
+      "code_assets/code"
+    ],
+    "extensions": {
+      "code_assets": {
+        "link_mode_preference": "dynamic",
+        "macos": {
+          "target_version": 12
+        },
+        "target_architecture": "arm64",
+        "target_os": "macos"
+      }
+    },
+    "linking_enabled": false
+  },
+  "out_dir_shared": "/Users/runyaga/dev/dart_monty_plugins/.dart_tool/hooks_runner/shared/dart_monty/build/",
+  "out_file": "/Users/runyaga/dev/dart_monty_plugins/.dart_tool/hooks_runner/dart_monty/9fb02c5622/output.json",
+  "package_name": "dart_monty",
+  "package_root": "/Users/runyaga/dev/dart_monty/main/",
+  "user_defines": {}
+}

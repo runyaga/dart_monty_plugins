@@ -1,0 +1,17 @@
+{
+  "assets": [
+    {
+      "encoding": {
+        "file": "/Users/runyaga/dev/dart_monty_plugins/.dart_tool/hooks_runner/shared/dart_monty/build/arm64/libdart_monty_native.dylib",
+        "id": "package:dart_monty/dart_monty_ffi.dart",
+        "link_mode": {
+          "type": "dynamic_loading_bundle"
+        }
+      },
+      "type": "code_assets/code"
+    }
+  ],
+  "assets_for_linking": {},
+  "status": "success",
+  "timestamp": "2026-04-16 17:27:27.000"
+}
