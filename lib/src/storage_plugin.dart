@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
@@ -111,7 +110,7 @@ class StoragePlugin extends MontyPlugin {
 
   Future<Object?> _handleClear(Map<String, Object?> args) async {
     await _backend.clear();
-    unawaited(_updateSignal());
+    await _updateSignal();
 
     return null;
   }
