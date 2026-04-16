@@ -1,0 +1,14 @@
+# Dart/pub
+.dart_tool/
+.packages
+pubspec.lock
+build/
+doc/api/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
