@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:dart_monty/dart_monty.dart';
 import 'package:dart_monty/dart_monty_bridge.dart';
 import 'package:dart_monty_plugins/dart_monty_plugins.dart';
 import 'package:http/http.dart' as http;
@@ -193,25 +192,16 @@ void main() {
     });
 
     test('VFS mapping works', () async {
-      final provider = plugin.osContribution!['Path.']!;
+      final handler = plugin.osContribution!['Path.']!;
 
-      await provider.resolve(
-        const MontyOsCall(
-          operationName: 'Path.write_text',
-          arguments: [
-            MontyString('/storage/data.txt'),
-            MontyString('hello'),
-          ],
-        ),
-      );
+      await handler('Path.write_text', ['/storage/data.txt', 'hello'], null);
 
       expect(await backend.get('data.txt'), 'hello');
 
-      final read = await provider.resolve(
-        const MontyOsCall(
-          operationName: 'Path.read_text',
-          arguments: [MontyString('/storage/data.txt')],
-        ),
+      final read = await handler(
+        'Path.read_text',
+        ['/storage/data.txt'],
+        null,
       );
       expect(read, 'hello');
     });
@@ -226,16 +216,8 @@ void main() {
       await setFn.handler({'key': 'foo', 'value': 'bar'});
       expect(plugin.storageSignal.value, contains('foo'));
 
-      final provider = plugin.osContribution!['Path.']!;
-      await provider.resolve(
-        const MontyOsCall(
-          operationName: 'Path.write_text',
-          arguments: [
-            MontyString('/storage/vfs.txt'),
-            MontyString('vfs'),
-          ],
-        ),
-      );
+      final handler = plugin.osContribution!['Path.']!;
+      await handler('Path.write_text', ['/storage/vfs.txt', 'vfs'], null);
       expect(plugin.storageSignal.value, containsAll(['foo', 'vfs.txt']));
     });
   });
