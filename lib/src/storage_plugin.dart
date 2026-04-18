@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
-import 'package:dart_monty/dart_monty.dart';
 import 'package:dart_monty/dart_monty_bridge.dart';
 import 'package:signals_core/signals_core.dart';
 
@@ -34,8 +32,8 @@ class StoragePlugin extends MontyPlugin {
       'mapped to this backend.';
 
   @override
-  Map<String, OsProvider>? get osContribution => {
-    'Path.': StorageFsOsProvider(backend: _backend, onUpdate: _updateSignal),
+  Map<String, OsCallHandler>? get osContribution => {
+    'Path.': storageFsHandler(backend: _backend, onUpdate: _updateSignal),
   };
 
   @override
@@ -160,83 +158,42 @@ class MemoryStorageBackend implements StorageBackend {
   Future<void> dispose() async => _data.clear();
 }
 
-/// OsProvider that maps /storage/ path operations to a [StorageBackend].
-class StorageFsOsProvider extends OsProvider {
-  /// Creates a [StorageFsOsProvider].
-  // ignore: prefer-declaring-const-constructor, backend is not const
-  StorageFsOsProvider({required this.backend, this.onUpdate}) : super.base();
-
-  /// The backend to use for storage operations.
-  final StorageBackend backend;
-
-  /// Optional callback invoked when the storage is modified via VFS.
-  final Future<void> Function()? onUpdate;
-
-  @override
-  Future<Object?> resolve(MontyOsCall call) async {
-    // Only intercept calls that target the /storage/ prefix.
-    final path = _extractPath(call);
-    if (path == null || !path.startsWith('/storage/')) {
-      return null; // Fall through to next provider
-    }
+/// Handler that maps `/storage/` Path.* operations to a [StorageBackend].
+///
+/// Falls through (returns `null`) for paths outside `/storage/` so the caller
+/// can route to another handler via [composeOsHandlers].
+OsCallHandler storageFsHandler({
+  required StorageBackend backend,
+  Future<void> Function()? onUpdate,
+}) {
+  return (operation, args, kwargs) async {
+    final path = args.isNotEmpty && args.first is String
+        ? args.first as String?
+        : kwargs?['path'] as String?;
+    if (path == null || !path.startsWith('/storage/')) return null;
 
     final key = path.substring(9); // remove /storage/
 
-    return switch (call.operationName) {
-      'Path.read_text' => await backend.get(key),
-      'Path.write_text' => () async {
-        await backend.set(key, _extractArg(call, 'contents'));
+    switch (operation) {
+      case 'Path.read_text':
+        return backend.get(key);
+      case 'Path.write_text':
+        final contents =
+            kwargs?['contents'] ?? (args.length > 1 ? args[1] : null);
+        await backend.set(key, contents);
         await onUpdate?.call();
-
         return null;
-      }(),
-      'Path.unlink' => () async {
+      case 'Path.unlink':
         await backend.delete(key);
         await onUpdate?.call();
-
         return null;
-      }(),
-      'Path.exists' || 'Path.is_file' => (await backend.list()).contains(key),
-      _ => null,
-    };
-  }
-
-  String? _extractPath(MontyOsCall call) {
-    // Standard Path.* calls pass the path as the first positional argument.
-    final first = call.arguments.firstOrNull;
-    if (first is MontyString) return first.value;
-
-    // Check kwargs just in case.
-    final path = call.kwargs?['path'];
-    if (path is MontyString) return path.value;
-
-    return null;
-  }
-
-  Object? _extractArg(MontyOsCall call, String name) {
-    final val = call.kwargs?[name];
-    if (val != null) return _toDart(val);
-
-    // For write_text(contents), it's often the second positional arg (after
-    // self/path).
-    if (name == 'contents') {
-      final second = call.arguments.elementAtOrNull(1);
-      if (second != null) return _toDart(second);
+      case 'Path.exists':
+      case 'Path.is_file':
+        return (await backend.list()).contains(key);
     }
 
     return null;
-  }
-
-  Object? _toDart(MontyValue val) {
-    return switch (val) {
-      MontyString(:final value) => value,
-      MontyInt(:final value) => value,
-      MontyFloat(:final value) => value,
-      MontyBool(:final value) => value,
-      MontyBytes(:final value) => value,
-      _ => null,
-    };
-  }
+  };
 }
 
 // ---------------------------------------------------------------------------
