@@ -4,7 +4,7 @@ import 'package:dart_monty/dart_monty_bridge.dart';
 import 'package:signals_core/signals_core.dart';
 
 /// Plugin for scheduling recurring or one-shot jobs that post to MessageBus.
-class CronPlugin extends MontyPlugin {
+class CronPlugin extends MontyExtension {
   /// Creates a [CronPlugin].
   CronPlugin({MessageBus? bus, this.maxJobs = 64}) : _bus = bus;
 
@@ -45,9 +45,13 @@ class CronPlugin extends MontyPlugin {
   ];
 
   @override
-  MontyPlugin? createChildInstance({ChildSpawnContext? context}) {
+  @override
+  ChildPolicy get childPolicy => ChildPolicy.clone;
+
+  @override
+  MontyExtension createChildInstance(ChildSpawnContext context) {
     // Shared bus (if available), independent job map.
-    return CronPlugin(bus: _bus ?? sibling<MessageBusPlugin>()?.bus);
+    return CronPlugin(bus: _bus ?? peer<MessageBusPlugin>()?.bus);
   }
 
   @override
@@ -62,7 +66,7 @@ class CronPlugin extends MontyPlugin {
   }
 
   MessageBus _getBus() {
-    final bus = _bus ?? sibling<MessageBusPlugin>()?.bus;
+    final bus = _bus ?? peer<MessageBusPlugin>()?.bus;
     if (bus == null) {
       throw StateError(
         'CronPlugin requires a MessageBus. Register MessageBusPlugin first.',

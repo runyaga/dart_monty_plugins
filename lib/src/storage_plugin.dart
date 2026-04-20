@@ -6,7 +6,7 @@ import 'package:dart_monty/dart_monty_bridge.dart';
 import 'package:signals_core/signals_core.dart';
 
 /// Plugin for persistent or in-memory key-value storage.
-class StoragePlugin extends MontyPlugin {
+class StoragePlugin extends MontyExtension {
   /// Creates a [StoragePlugin].
   StoragePlugin({
     StorageBackend? backend,
@@ -49,13 +49,17 @@ class StoragePlugin extends MontyPlugin {
   ];
 
   @override
-  Future<void> onRegister(MontyBridge bridge) async {
-    await super.onRegister(bridge);
+  Future<void> onAttach(AttachContext ctx) async {
+    await super.onAttach(ctx);
     await _updateSignal();
   }
 
   @override
-  MontyPlugin? createChildInstance({ChildSpawnContext? context}) {
+  @override
+  ChildPolicy get childPolicy => ChildPolicy.clone;
+
+  @override
+  MontyExtension createChildInstance(ChildSpawnContext context) {
     // Children share the same backend and scope by default.
     return StoragePlugin(backend: _backend, scope: scope);
   }

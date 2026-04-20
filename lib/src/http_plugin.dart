@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:signals_core/signals_core.dart';
 
 /// Plugin providing HTTP client capabilities to Python code.
-class HttpPlugin extends MontyPlugin {
+class HttpPlugin extends MontyExtension {
   /// Creates an [HttpPlugin].
   HttpPlugin({
     HttpPluginConfig? config,
@@ -62,7 +62,11 @@ class HttpPlugin extends MontyPlugin {
   ];
 
   @override
-  MontyPlugin? createChildInstance({ChildSpawnContext? context}) {
+  @override
+  ChildPolicy get childPolicy => ChildPolicy.clone;
+
+  @override
+  MontyExtension createChildInstance(ChildSpawnContext context) {
     if (!allowFromSandboxedChildren) return _DisabledHttpPlugin();
 
     return HttpPlugin(
@@ -227,7 +231,7 @@ class HttpPluginConfig {
   final int maxResponseBodyBytes;
 }
 
-class _DisabledHttpPlugin extends MontyPlugin {
+class _DisabledHttpPlugin extends MontyExtension {
   @override
   String get namespace => 'http';
 

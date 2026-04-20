@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 /// Plugin that exposes a local [Ollama](https://ollama.com) server to Python
 /// code running inside Monty.
 ///
-/// Registers three host functions that mirror the `LlamaMontyPlugin` surface
+/// Registers three host functions that mirror the `LlamaMontyExtension` surface
 /// so the two plugins are drop-in replacements for each other:
 ///
 /// - `llm_complete(prompt, [model], [system_prompt])` — stateless single-turn
@@ -29,10 +29,10 @@ import 'package:http/http.dart' as http;
 /// **Dart setup:**
 /// ```dart
 /// final session = AgentSession(
-///   plugins: [OllamaPlugin(defaultModel: 'llama3.2')],
+///   extensions: [OllamaPlugin(defaultModel: 'llama3.2')],
 /// );
 /// ```
-class OllamaPlugin extends MontyPlugin {
+class OllamaPlugin extends MontyExtension {
   /// Creates an [OllamaPlugin].
   ///
   /// [baseUrl] is the Ollama server root (default `http://localhost:11434`).

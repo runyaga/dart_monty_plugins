@@ -4,7 +4,7 @@ import 'package:dart_monty/dart_monty_bridge.dart';
 import 'package:signals_core/signals_core.dart';
 
 /// Plugin for capturing structured logs from Python.
-class LoggingPlugin extends MontyPlugin {
+class LoggingPlugin extends MontyExtension {
   /// Creates a [LoggingPlugin].
   LoggingPlugin({
     this.maxRecords = 500,
@@ -89,7 +89,11 @@ _atexit.register(_monty_handler.flush)
   ];
 
   @override
-  MontyPlugin? createChildInstance({ChildSpawnContext? context}) {
+  @override
+  ChildPolicy get childPolicy => ChildPolicy.clone;
+
+  @override
+  MontyExtension createChildInstance(ChildSpawnContext context) {
     // Shared signal/buffer for children.
     return _ChildLoggingPlugin(parent: this);
   }
@@ -175,7 +179,7 @@ class LogRecord {
   };
 }
 
-class _ChildLoggingPlugin extends MontyPlugin {
+class _ChildLoggingPlugin extends MontyExtension {
   _ChildLoggingPlugin({required this.parent});
   final LoggingPlugin parent;
 
