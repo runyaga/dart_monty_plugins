@@ -7,4 +7,5 @@ library;
 export 'src/cron_plugin.dart';
 export 'src/http_plugin.dart';
 export 'src/logging_plugin.dart';
+export 'src/ollama_plugin.dart';
 export 'src/storage_plugin.dart';
